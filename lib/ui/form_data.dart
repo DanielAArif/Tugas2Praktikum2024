@@ -13,21 +13,42 @@ class FormDataState extends State<FormData> {
   final _namaController = TextEditingController();
   final _nimController = TextEditingController();
   final _tahunController = TextEditingController();
+  int? _selectedYear;
+  List<int> _years = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Generate list of years
+    int currentYear = DateTime.now().year;
+    for (int i = currentYear; i >= 1950; i--) {
+      _years.add(i);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Input Data"),
+        backgroundColor: Colors.blueAccent,
       ),
-      body: Container(
-        margin: const EdgeInsets.all(10),
-        child: Column(
-          children: [
-            _textboxNama(),
-            _textboxNIM(),
-            _textboxTahun(),
-            _tombolSimpan()
-          ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 20),
+              _textboxNama(),
+              const SizedBox(height: 20),
+              _textboxNIM(),
+              const SizedBox(height: 20),
+              _dropdownTahun(),
+              const SizedBox(height: 30),
+              _tombolSimpan(),
+            ],
+          ),
         ),
       ),
     );
@@ -35,35 +56,81 @@ class FormDataState extends State<FormData> {
 
   _textboxNama() {
     return TextField(
-      decoration: const InputDecoration(labelText: "Nama"),
+      decoration: InputDecoration(
+        labelText: "Nama",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        prefixIcon: Icon(Icons.person),
+        filled: true,
+        fillColor: Colors.grey[200],
+      ),
       controller: _namaController,
     );
   }
 
   _textboxNIM() {
     return TextField(
-      decoration: const InputDecoration(labelText: "NIM"),
+      decoration: InputDecoration(
+        labelText: "NIM",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        prefixIcon: Icon(Icons.credit_card),
+        filled: true,
+        fillColor: Colors.grey[200],
+      ),
       controller: _nimController,
     );
   }
 
-  _textboxTahun() {
-    return TextField(
-      decoration: const InputDecoration(labelText: "Tahun Lahir"),
-      controller: _tahunController,
+  _dropdownTahun() {
+    return DropdownButtonFormField<int>(
+      decoration: InputDecoration(
+        labelText: "Tahun Lahir",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        filled: true,
+        fillColor: Colors.grey[200],
+      ),
+      value: _selectedYear,
+      items: _years.map((year) {
+        return DropdownMenuItem<int>(
+          value: year,
+          child: Text(year.toString()),
+        );
+      }).toList(),
+      onChanged: (value) {
+        setState(() {
+          _selectedYear = value;
+        });
+      },
     );
   }
 
   _tombolSimpan() {
     return ElevatedButton(
-        onPressed: () {
-          String nama = _namaController.text;
-          String nim = _nimController.text;
-          int tahun = int.parse(_tahunController.text);
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) =>
-                  TampilData(nama: nama, nim: nim, tahun: tahun)));
-        },
-        child: const Text('Simpan'));
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.blueAccent, // Warna tombol
+        foregroundColor: Colors.white, // Warna teks
+        padding: const EdgeInsets.symmetric(vertical: 15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      onPressed: () {
+        String nama = _namaController.text;
+        String nim = _nimController.text;
+        int tahun = _selectedYear ?? DateTime.now().year;
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) =>
+                TampilData(nama: nama, nim: nim, tahun: tahun)));
+      },
+      child: const Text(
+        'Simpan',
+        style: TextStyle(fontSize: 18),
+      ),
+    );
   }
 }
